@@ -12,15 +12,21 @@ import type {
 } from '../../types';
 import { Config } from '../../config';
 import {
-	INVISIBLE_SPACE_REG_EXP as INV_REG,
+	// INVISIBLE_SPACE_REG_EXP as INV_REG,
 	IS_INLINE,
-	INSEPARABLE_TAGS
+	// INSEPARABLE_TAGS
 } from '../../core/constants';
 import { Dom } from '../../modules';
-import { attr, isString, safeHTML, trim } from '../../core/helpers';
+import {
+	//  attr, 
+isString, safeHTML, trim } from '../../core/helpers';
 import { Plugin } from '../../core/plugin';
-import { watch, autobind } from '../../core/decorators';
-import { findNotEmptySibling } from '../keyboard/helpers';
+import { watch, 
+// autobind 
+} from '../../core/decorators';
+// import { 
+// 	// findNotEmptySibling
+// 	 } from '../keyboard/helpers';
 
 declare module '../../config' {
 	interface Config {
@@ -136,8 +142,8 @@ export class cleanHtml extends Plugin {
 			// 	'change.cleanHtml afterSetMode.cleanHtml afterInit.cleanHtml mousedown.cleanHtml keydown.cleanHtml',
 			// 	this.onChangeCleanHTML
 			// )
-			.on('keyup.cleanHtml', this.onKeyUpCleanUp)
-			.on('beforeCommand.cleanHtml', this.beforeCommand);
+			// .on('keyup.cleanHtml', this.onKeyUpCleanUp)
+			// .on('beforeCommand.cleanHtml', this.beforeCommand);
 	}
 
 	/**
@@ -214,13 +220,13 @@ export class cleanHtml extends Plugin {
 	// 	}
 	// }
 
-	private allowEdit(): boolean {
-		return !(
-			this.j.isInDestruct ||
-			!this.j.isEditorMode() ||
-			this.j.getReadOnly()
-		);
-	}
+	// private allowEdit(): boolean {
+	// 	return !(
+	// 		this.j.isInDestruct ||
+	// 		!this.j.isEditorMode() ||
+	// 		this.j.getReadOnly()
+	// 	);
+	// }
 
 	private visitNode = (
 		nodeElm: Nullable<Element | Node>,
@@ -344,176 +350,176 @@ export class cleanHtml extends Plugin {
 	/**
 	 * Remove invisible chars if node has another chars
 	 */
-	private onKeyUpCleanUp = () => {
-		const editor = this.j;
+	// private onKeyUpCleanUp = () => {
+	// 	const editor = this.j;
 
-		if (!this.allowEdit()) {
-			return;
-		}
+	// 	if (!this.allowEdit()) {
+	// 		return;
+	// 	}
 
-		const currentNode = editor.s.current();
+	// 	const currentNode = editor.s.current();
 
-		if (currentNode) {
-			const currentParagraph = Dom.up(
-				currentNode,
-				Dom.isBlock,
-				editor.editor
-			);
+	// 	if (currentNode) {
+	// 		const currentParagraph = Dom.up(
+	// 			currentNode,
+	// 			Dom.isBlock,
+	// 			editor.editor
+	// 		);
 
-			if (currentParagraph) {
-				Dom.all(currentParagraph, node => {
-					if (node && Dom.isText(node)) {
-						if (
-							node.nodeValue != null &&
-							INV_REG().test(node.nodeValue) &&
-							node.nodeValue.replace(INV_REG(), '').length !== 0
-						) {
-							node.nodeValue = node.nodeValue.replace(
-								INV_REG(),
-								''
-							);
+	// 		if (currentParagraph) {
+	// 			Dom.all(currentParagraph, node => {
+	// 				if (node && Dom.isText(node)) {
+	// 					if (
+	// 						node.nodeValue != null &&
+	// 						INV_REG().test(node.nodeValue) &&
+	// 						node.nodeValue.replace(INV_REG(), '').length !== 0
+	// 					) {
+	// 						node.nodeValue = node.nodeValue.replace(
+	// 							INV_REG(),
+	// 							''
+	// 						);
 
-							if (
-								node === currentNode &&
-								editor.s.isCollapsed()
-							) {
-								editor.s.setCursorAfter(node);
-							}
-						}
-					}
-				});
-			}
-		}
-	};
+	// 						if (
+	// 							node === currentNode &&
+	// 							editor.s.isCollapsed()
+	// 						) {
+	// 							editor.s.setCursorAfter(node);
+	// 						}
+	// 					}
+	// 				}
+	// 			});
+	// 		}
+	// 	}
+	// };
 
-	private beforeCommand = (command: string): void | false => {
-		if (command.toLowerCase() === 'removeformat') {
-			this.onRemoveFormat();
-			return false;
-		}
-	};
+	// private beforeCommand = (command: string): void | false => {
+	// 	if (command.toLowerCase() === 'removeformat') {
+	// 		this.onRemoveFormat();
+	// 		return false;
+	// 	}
+	// };
 
 	/**
 	 * Command: removeFormat
 	 */
-	private onRemoveFormat(): void {
-		if (this.j.s.isCollapsed()) {
-			this.removeFormatForCollapsedSelection();
-		} else {
-			this.removeFormatForSelection();
-		}
-	}
+	// private onRemoveFormat(): void {
+	// 	if (this.j.s.isCollapsed()) {
+	// 		this.removeFormatForCollapsedSelection();
+	// 	} else {
+	// 		this.removeFormatForSelection();
+	// 	}
+	// }
 
 	/**
 	 * For collapsed selection move cursor outside or split inline block
 	 */
-	private removeFormatForCollapsedSelection(
-		fake?: Node
-	): Nullable<Text> | void {
-		const { s } = this.j;
+	// private removeFormatForCollapsedSelection(
+	// 	fake?: Node
+	// ): Nullable<Text> | void {
+	// 	const { s } = this.j;
 
-		let fakeNode = fake;
+	// 	let fakeNode = fake;
 
-		if (!fakeNode) {
-			fakeNode = this.j.createInside.fake();
-			s.range.insertNode(fakeNode);
-			s.range.collapse();
-		}
+	// 	if (!fakeNode) {
+	// 		fakeNode = this.j.createInside.fake();
+	// 		s.range.insertNode(fakeNode);
+	// 		s.range.collapse();
+	// 	}
 
-		const mainInline = Dom.furthest(
-			fakeNode,
-			this.isInlineBlock,
-			this.j.editor
-		);
+	// 	const mainInline = Dom.furthest(
+	// 		fakeNode,
+	// 		this.isInlineBlock,
+	// 		this.j.editor
+	// 	);
 
-		if (mainInline) {
-			if (s.cursorOnTheLeft(mainInline)) {
-				Dom.before(mainInline, fakeNode);
-			} else if (s.cursorOnTheRight(mainInline)) {
-				Dom.after(mainInline, fakeNode);
-			} else {
-				const leftHand = s.splitSelection(mainInline);
-				leftHand && Dom.after(leftHand, fakeNode);
-			}
-		}
+	// 	if (mainInline) {
+	// 		if (s.cursorOnTheLeft(mainInline)) {
+	// 			Dom.before(mainInline, fakeNode);
+	// 		} else if (s.cursorOnTheRight(mainInline)) {
+	// 			Dom.after(mainInline, fakeNode);
+	// 		} else {
+	// 			const leftHand = s.splitSelection(mainInline);
+	// 			leftHand && Dom.after(leftHand, fakeNode);
+	// 		}
+	// 	}
 
-		if (!fake) {
-			s.setCursorBefore(fakeNode);
-			Dom.safeRemove(fakeNode);
-		}
-	}
+	// 	if (!fake) {
+	// 		s.setCursorBefore(fakeNode);
+	// 		Dom.safeRemove(fakeNode);
+	// 	}
+	// }
 
 	/**
 	 * Element has inline display mode
 	 */
-	@autobind
-	private isInlineBlock(node: Nullable<Node>): node is Node {
-		return Dom.isInlineBlock(node) && !Dom.isTag(node, INSEPARABLE_TAGS);
-	}
+	// @autobind
+	// private isInlineBlock(node: Nullable<Node>): node is Node {
+	// 	return Dom.isInlineBlock(node) && !Dom.isTag(node, INSEPARABLE_TAGS);
+	// }
 
 	/**
 	 * Remove formatting for all selected elements
 	 */
-	private removeFormatForSelection(): void {
-		const { s } = this.j,
-			{ range } = s,
-			left = range.cloneRange(),
-			right = range.cloneRange(),
-			fakeLeft = this.j.createInside.fake(),
-			fakeRight = this.j.createInside.fake();
+	// private removeFormatForSelection(): void {
+	// 	const { s } = this.j,
+	// 		{ range } = s,
+	// 		left = range.cloneRange(),
+	// 		right = range.cloneRange(),
+	// 		fakeLeft = this.j.createInside.fake(),
+	// 		fakeRight = this.j.createInside.fake();
 
-		left.collapse(true);
-		right.collapse(false);
+	// 	left.collapse(true);
+	// 	right.collapse(false);
 
-		left.insertNode(fakeLeft);
-		right.insertNode(fakeRight);
+	// 	left.insertNode(fakeLeft);
+	// 	right.insertNode(fakeRight);
 
-		range.setStartBefore(fakeLeft);
-		range.collapse(true);
-		s.selectRange(range);
-		this.removeFormatForCollapsedSelection(fakeLeft);
+	// 	range.setStartBefore(fakeLeft);
+	// 	range.collapse(true);
+	// 	s.selectRange(range);
+	// 	this.removeFormatForCollapsedSelection(fakeLeft);
 
-		range.setEndAfter(fakeRight);
-		range.collapse(false);
-		s.selectRange(range);
-		this.removeFormatForCollapsedSelection(fakeRight);
+	// 	range.setEndAfter(fakeRight);
+	// 	range.collapse(false);
+	// 	s.selectRange(range);
+	// 	this.removeFormatForCollapsedSelection(fakeRight);
 
-		const shouldUnwrap: Node[] = [];
+	// 	const shouldUnwrap: Node[] = [];
 
-		Dom.between(fakeLeft, fakeRight, node => {
-			if (this.isInlineBlock(node)) {
-				shouldUnwrap.push(node);
-			}
+	// 	Dom.between(fakeLeft, fakeRight, node => {
+	// 		if (this.isInlineBlock(node)) {
+	// 			shouldUnwrap.push(node);
+	// 		}
 
-			if (Dom.isElement(node) && attr(node, 'style')) {
-				attr(node, 'style', null);
-			}
-		});
+	// 		if (Dom.isElement(node) && attr(node, 'style')) {
+	// 			attr(node, 'style', null);
+	// 		}
+	// 	});
 
-		shouldUnwrap.forEach(node => Dom.unwrap(node));
+	// 	shouldUnwrap.forEach(node => Dom.unwrap(node));
 
-		const clearParent = (node: Node, left: boolean): true | void => {
-			if (!findNotEmptySibling(node, left)) {
-				const pn = node.parentNode as Element;
+	// 	const clearParent = (node: Node, left: boolean): true | void => {
+	// 		if (!findNotEmptySibling(node, left)) {
+	// 			const pn = node.parentNode as Element;
 
-				if (pn && pn !== s.area && attr(pn, 'style')) {
-					attr(pn, 'style', null);
-					clearParent(pn, left);
+	// 			if (pn && pn !== s.area && attr(pn, 'style')) {
+	// 				attr(pn, 'style', null);
+	// 				clearParent(pn, left);
 
-					return true;
-				}
-			}
-		};
+	// 				return true;
+	// 			}
+	// 		}
+	// 	};
 
-		clearParent(fakeLeft, true) && clearParent(fakeRight, false);
+	// 	clearParent(fakeLeft, true) && clearParent(fakeRight, false);
 
-		range.setStartAfter(fakeLeft);
-		range.setEndBefore(fakeRight);
-		s.selectRange(range);
+	// 	range.setStartAfter(fakeLeft);
+	// 	range.setEndBefore(fakeRight);
+	// 	s.selectRange(range);
 
-		Dom.safeRemove(fakeLeft);
-		Dom.safeRemove(fakeRight);
-	}
+	// 	Dom.safeRemove(fakeLeft);
+	// 	Dom.safeRemove(fakeRight);
+	// }
 
 	private isRemovableNode(node: Node, current: Nullable<Node>): boolean {
 		const allow = this.allowTagsHash;

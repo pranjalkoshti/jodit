@@ -1,7 +1,7 @@
 /*!
  * jodit-prk - Jodit is awesome and usefully wysiwyg editor with filebrowser
  * Author: Chupurnov <chupurnov@gmail.com> (https://xdsoft.net/)
- * Version: v3.11.6
+ * Version: v3.11.9
  * Url: https://xdsoft.net/jodit/
  * License(s): MIT
  */
@@ -13295,7 +13295,7 @@ var View = (function (_super) {
         _this.isView = true;
         _this.mods = {};
         _this.components = new Set();
-        _this.version = "3.11.6";
+        _this.version = "3.11.9";
         _this.async = new async_1.Async();
         _this.buffer = storage_1.Storage.makeStorage();
         _this.storage = storage_1.Storage.makeStorage(true, _this.componentName);
@@ -13437,10 +13437,10 @@ var View = (function (_super) {
         configurable: true
     });
     View.prototype.getVersion = function () {
-        return "3.11.6";
+        return "3.11.9";
     };
     View.getVersion = function () {
-        return "3.11.6";
+        return "3.11.9";
     };
     View.prototype.initOptions = function (options) {
         this.options = (0, helpers_1.ConfigProto)(options || {}, (0, helpers_1.ConfigProto)(this.options || {}, View.defaultOptions));
@@ -24386,7 +24386,6 @@ var modules_1 = __webpack_require__(10);
 var helpers_1 = __webpack_require__(19);
 var plugin_1 = __webpack_require__(211);
 var decorators_1 = __webpack_require__(41);
-var helpers_2 = __webpack_require__(270);
 config_1.Config.prototype.cleanHTML = {
     timeout: 300,
     removeEmptyElements: true,
@@ -24438,8 +24437,8 @@ var cleanHtml = (function (_super) {
                 if (attrs && attrs.length) {
                     var removeAttrs = [];
                     for (var i = 0; i < attrs.length; i += 1) {
-                        var attr_1 = allow[nodeElm.nodeName][attrs[i].name];
-                        if (!attr_1 || (attr_1 !== true && attr_1 !== attrs[i].value)) {
+                        var attr = allow[nodeElm.nodeName][attrs[i].name];
+                        if (!attr || (attr !== true && attr !== attrs[i].value)) {
                             removeAttrs.push(attrs[i].name);
                         }
                     }
@@ -24457,44 +24456,11 @@ var cleanHtml = (function (_super) {
         };
         _this.allowTagsHash = cleanHtml.getHash(_this.j.o.cleanHTML.allowTags);
         _this.denyTagsHash = cleanHtml.getHash(_this.j.o.cleanHTML.denyTags);
-        _this.onKeyUpCleanUp = function () {
-            var editor = _this.j;
-            if (!_this.allowEdit()) {
-                return;
-            }
-            var currentNode = editor.s.current();
-            if (currentNode) {
-                var currentParagraph = modules_1.Dom.up(currentNode, modules_1.Dom.isBlock, editor.editor);
-                if (currentParagraph) {
-                    modules_1.Dom.all(currentParagraph, function (node) {
-                        if (node && modules_1.Dom.isText(node)) {
-                            if (node.nodeValue != null &&
-                                (0, constants_1.INVISIBLE_SPACE_REG_EXP)().test(node.nodeValue) &&
-                                node.nodeValue.replace((0, constants_1.INVISIBLE_SPACE_REG_EXP)(), '').length !== 0) {
-                                node.nodeValue = node.nodeValue.replace((0, constants_1.INVISIBLE_SPACE_REG_EXP)(), '');
-                                if (node === currentNode &&
-                                    editor.s.isCollapsed()) {
-                                    editor.s.setCursorAfter(node);
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        };
-        _this.beforeCommand = function (command) {
-            if (command.toLowerCase() === 'removeformat') {
-                _this.onRemoveFormat();
-                return false;
-            }
-        };
         return _this;
     }
     cleanHtml.prototype.afterInit = function (jodit) {
         jodit.e
-            .off('.cleanHtml')
-            .on('keyup.cleanHtml', this.onKeyUpCleanUp)
-            .on('beforeCommand.cleanHtml', this.beforeCommand);
+            .off('.cleanHtml');
     };
     cleanHtml.prototype.replaceIfMatched = function (oldParent) {
         var replaceOldTags = this.j.o.cleanHTML.replaceOldTags;
@@ -24507,11 +24473,6 @@ var cleanHtml = (function (_super) {
             return modules_1.Dom.replace(oldParent, tagName, this.j.createInside, true, false);
         }
         return oldParent;
-    };
-    cleanHtml.prototype.allowEdit = function () {
-        return !(this.j.isInDestruct ||
-            !this.j.isEditorMode() ||
-            this.j.getReadOnly());
     };
     cleanHtml.getHash = function (tags) {
         var attributesReg = /([^[]*)\[([^\]]+)]/;
@@ -24550,85 +24511,6 @@ var cleanHtml = (function (_super) {
             return tagsHash;
         }
         return false;
-    };
-    cleanHtml.prototype.onRemoveFormat = function () {
-        if (this.j.s.isCollapsed()) {
-            this.removeFormatForCollapsedSelection();
-        }
-        else {
-            this.removeFormatForSelection();
-        }
-    };
-    cleanHtml.prototype.removeFormatForCollapsedSelection = function (fake) {
-        var s = this.j.s;
-        var fakeNode = fake;
-        if (!fakeNode) {
-            fakeNode = this.j.createInside.fake();
-            s.range.insertNode(fakeNode);
-            s.range.collapse();
-        }
-        var mainInline = modules_1.Dom.furthest(fakeNode, this.isInlineBlock, this.j.editor);
-        if (mainInline) {
-            if (s.cursorOnTheLeft(mainInline)) {
-                modules_1.Dom.before(mainInline, fakeNode);
-            }
-            else if (s.cursorOnTheRight(mainInline)) {
-                modules_1.Dom.after(mainInline, fakeNode);
-            }
-            else {
-                var leftHand = s.splitSelection(mainInline);
-                leftHand && modules_1.Dom.after(leftHand, fakeNode);
-            }
-        }
-        if (!fake) {
-            s.setCursorBefore(fakeNode);
-            modules_1.Dom.safeRemove(fakeNode);
-        }
-    };
-    cleanHtml.prototype.isInlineBlock = function (node) {
-        return modules_1.Dom.isInlineBlock(node) && !modules_1.Dom.isTag(node, constants_1.INSEPARABLE_TAGS);
-    };
-    cleanHtml.prototype.removeFormatForSelection = function () {
-        var _this = this;
-        var s = this.j.s, range = s.range, left = range.cloneRange(), right = range.cloneRange(), fakeLeft = this.j.createInside.fake(), fakeRight = this.j.createInside.fake();
-        left.collapse(true);
-        right.collapse(false);
-        left.insertNode(fakeLeft);
-        right.insertNode(fakeRight);
-        range.setStartBefore(fakeLeft);
-        range.collapse(true);
-        s.selectRange(range);
-        this.removeFormatForCollapsedSelection(fakeLeft);
-        range.setEndAfter(fakeRight);
-        range.collapse(false);
-        s.selectRange(range);
-        this.removeFormatForCollapsedSelection(fakeRight);
-        var shouldUnwrap = [];
-        modules_1.Dom.between(fakeLeft, fakeRight, function (node) {
-            if (_this.isInlineBlock(node)) {
-                shouldUnwrap.push(node);
-            }
-            if (modules_1.Dom.isElement(node) && (0, helpers_1.attr)(node, 'style')) {
-                (0, helpers_1.attr)(node, 'style', null);
-            }
-        });
-        shouldUnwrap.forEach(function (node) { return modules_1.Dom.unwrap(node); });
-        var clearParent = function (node, left) {
-            if (!(0, helpers_2.findNotEmptySibling)(node, left)) {
-                var pn = node.parentNode;
-                if (pn && pn !== s.area && (0, helpers_1.attr)(pn, 'style')) {
-                    (0, helpers_1.attr)(pn, 'style', null);
-                    clearParent(pn, left);
-                    return true;
-                }
-            }
-        };
-        clearParent(fakeLeft, true) && clearParent(fakeRight, false);
-        range.setStartAfter(fakeLeft);
-        range.setEndBefore(fakeRight);
-        s.selectRange(range);
-        modules_1.Dom.safeRemove(fakeLeft);
-        modules_1.Dom.safeRemove(fakeRight);
     };
     cleanHtml.prototype.isRemovableNode = function (node, current) {
         var allow = this.allowTagsHash;
@@ -24677,9 +24559,6 @@ var cleanHtml = (function (_super) {
     cleanHtml.prototype.beforeDestruct = function () {
         this.j.e.off('.cleanHtml');
     };
-    (0, tslib_1.__decorate)([
-        decorators_1.autobind
-    ], cleanHtml.prototype, "isInlineBlock", null);
     (0, tslib_1.__decorate)([
         (0, decorators_1.watch)(':beforeSetNativeEditorValue')
     ], cleanHtml.prototype, "onBeforeSetNativeEditorValue", null);

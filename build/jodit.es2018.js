@@ -1,7 +1,7 @@
 /*!
  * jodit-prk - Jodit is awesome and usefully wysiwyg editor with filebrowser
  * Author: Chupurnov <chupurnov@gmail.com> (https://xdsoft.net/)
- * Version: v3.11.6
+ * Version: v3.11.9
  * Url: https://xdsoft.net/jodit/
  * License(s): MIT
  */
@@ -15299,7 +15299,7 @@ class View extends component/* Component */.wA {
         this.isView = true;
         this.mods = {};
         this.components = new Set();
-        this.version = "3.11.6";
+        this.version = "3.11.9";
         this.async = new Async();
         this.buffer = Storage.makeStorage();
         this.storage = Storage.makeStorage(true, this.componentName);
@@ -15397,10 +15397,10 @@ class View extends component/* Component */.wA {
         return this.__isFullSize;
     }
     getVersion() {
-        return "3.11.6";
+        return "3.11.9";
     }
     static getVersion() {
-        return "3.11.6";
+        return "3.11.9";
     }
     initOptions(options) {
         this.options = (0,helpers.ConfigProto)(options || {}, (0,helpers.ConfigProto)(this.options || {}, View.defaultOptions));
@@ -22532,7 +22532,6 @@ function bold(editor) {
 
 
 
-
 config/* Config.prototype.cleanHTML */.D.prototype.cleanHTML = {
     timeout: 300,
     removeEmptyElements: true,
@@ -22602,43 +22601,10 @@ class cleanHtml extends Plugin {
         };
         this.allowTagsHash = cleanHtml.getHash(this.j.o.cleanHTML.allowTags);
         this.denyTagsHash = cleanHtml.getHash(this.j.o.cleanHTML.denyTags);
-        this.onKeyUpCleanUp = () => {
-            const editor = this.j;
-            if (!this.allowEdit()) {
-                return;
-            }
-            const currentNode = editor.s.current();
-            if (currentNode) {
-                const currentParagraph = dom/* Dom.up */.i.up(currentNode, dom/* Dom.isBlock */.i.isBlock, editor.editor);
-                if (currentParagraph) {
-                    dom/* Dom.all */.i.all(currentParagraph, node => {
-                        if (node && dom/* Dom.isText */.i.isText(node)) {
-                            if (node.nodeValue != null &&
-                                (0,constants.INVISIBLE_SPACE_REG_EXP)().test(node.nodeValue) &&
-                                node.nodeValue.replace((0,constants.INVISIBLE_SPACE_REG_EXP)(), '').length !== 0) {
-                                node.nodeValue = node.nodeValue.replace((0,constants.INVISIBLE_SPACE_REG_EXP)(), '');
-                                if (node === currentNode &&
-                                    editor.s.isCollapsed()) {
-                                    editor.s.setCursorAfter(node);
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        };
-        this.beforeCommand = (command) => {
-            if (command.toLowerCase() === 'removeformat') {
-                this.onRemoveFormat();
-                return false;
-            }
-        };
     }
     afterInit(jodit) {
         jodit.e
-            .off('.cleanHtml')
-            .on('keyup.cleanHtml', this.onKeyUpCleanUp)
-            .on('beforeCommand.cleanHtml', this.beforeCommand);
+            .off('.cleanHtml');
     }
     replaceIfMatched(oldParent) {
         const replaceOldTags = this.j.o.cleanHTML.replaceOldTags;
@@ -22651,11 +22617,6 @@ class cleanHtml extends Plugin {
             return dom/* Dom.replace */.i.replace(oldParent, tagName, this.j.createInside, true, false);
         }
         return oldParent;
-    }
-    allowEdit() {
-        return !(this.j.isInDestruct ||
-            !this.j.isEditorMode() ||
-            this.j.getReadOnly());
     }
     static getHash(tags) {
         const attributesReg = /([^[]*)\[([^\]]+)]/;
@@ -22694,84 +22655,6 @@ class cleanHtml extends Plugin {
             return tagsHash;
         }
         return false;
-    }
-    onRemoveFormat() {
-        if (this.j.s.isCollapsed()) {
-            this.removeFormatForCollapsedSelection();
-        }
-        else {
-            this.removeFormatForSelection();
-        }
-    }
-    removeFormatForCollapsedSelection(fake) {
-        const { s } = this.j;
-        let fakeNode = fake;
-        if (!fakeNode) {
-            fakeNode = this.j.createInside.fake();
-            s.range.insertNode(fakeNode);
-            s.range.collapse();
-        }
-        const mainInline = dom/* Dom.furthest */.i.furthest(fakeNode, this.isInlineBlock, this.j.editor);
-        if (mainInline) {
-            if (s.cursorOnTheLeft(mainInline)) {
-                dom/* Dom.before */.i.before(mainInline, fakeNode);
-            }
-            else if (s.cursorOnTheRight(mainInline)) {
-                dom/* Dom.after */.i.after(mainInline, fakeNode);
-            }
-            else {
-                const leftHand = s.splitSelection(mainInline);
-                leftHand && dom/* Dom.after */.i.after(leftHand, fakeNode);
-            }
-        }
-        if (!fake) {
-            s.setCursorBefore(fakeNode);
-            dom/* Dom.safeRemove */.i.safeRemove(fakeNode);
-        }
-    }
-    isInlineBlock(node) {
-        return dom/* Dom.isInlineBlock */.i.isInlineBlock(node) && !dom/* Dom.isTag */.i.isTag(node, constants.INSEPARABLE_TAGS);
-    }
-    removeFormatForSelection() {
-        const { s } = this.j, { range } = s, left = range.cloneRange(), right = range.cloneRange(), fakeLeft = this.j.createInside.fake(), fakeRight = this.j.createInside.fake();
-        left.collapse(true);
-        right.collapse(false);
-        left.insertNode(fakeLeft);
-        right.insertNode(fakeRight);
-        range.setStartBefore(fakeLeft);
-        range.collapse(true);
-        s.selectRange(range);
-        this.removeFormatForCollapsedSelection(fakeLeft);
-        range.setEndAfter(fakeRight);
-        range.collapse(false);
-        s.selectRange(range);
-        this.removeFormatForCollapsedSelection(fakeRight);
-        const shouldUnwrap = [];
-        dom/* Dom.between */.i.between(fakeLeft, fakeRight, node => {
-            if (this.isInlineBlock(node)) {
-                shouldUnwrap.push(node);
-            }
-            if (dom/* Dom.isElement */.i.isElement(node) && (0,helpers.attr)(node, 'style')) {
-                (0,helpers.attr)(node, 'style', null);
-            }
-        });
-        shouldUnwrap.forEach(node => dom/* Dom.unwrap */.i.unwrap(node));
-        const clearParent = (node, left) => {
-            if (!findNotEmptySibling(node, left)) {
-                const pn = node.parentNode;
-                if (pn && pn !== s.area && (0,helpers.attr)(pn, 'style')) {
-                    (0,helpers.attr)(pn, 'style', null);
-                    clearParent(pn, left);
-                    return true;
-                }
-            }
-        };
-        clearParent(fakeLeft, true) && clearParent(fakeRight, false);
-        range.setStartAfter(fakeLeft);
-        range.setEndBefore(fakeRight);
-        s.selectRange(range);
-        dom/* Dom.safeRemove */.i.safeRemove(fakeLeft);
-        dom/* Dom.safeRemove */.i.safeRemove(fakeRight);
     }
     isRemovableNode(node, current) {
         const allow = this.allowTagsHash;
@@ -22820,9 +22703,6 @@ class cleanHtml extends Plugin {
         this.j.e.off('.cleanHtml');
     }
 }
-(0,tslib_es6/* __decorate */.gn)([
-    decorators.autobind
-], cleanHtml.prototype, "isInlineBlock", null);
 (0,tslib_es6/* __decorate */.gn)([
     (0,decorators.watch)(':beforeSetNativeEditorValue')
 ], cleanHtml.prototype, "onBeforeSetNativeEditorValue", null);
