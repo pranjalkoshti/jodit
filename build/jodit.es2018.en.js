@@ -1,7 +1,7 @@
 /*!
  * jodit-prk - Jodit is awesome and usefully wysiwyg editor with filebrowser
  * Author: Chupurnov <chupurnov@gmail.com> (https://xdsoft.net/)
- * Version: v3.11.4
+ * Version: v3.11.6
  * Url: https://xdsoft.net/jodit/
  * License(s): MIT
  */
@@ -11105,7 +11105,7 @@ class View extends component/* Component */.wA {
         this.isView = true;
         this.mods = {};
         this.components = new Set();
-        this.version = "3.11.4";
+        this.version = "3.11.6";
         this.async = new Async();
         this.buffer = Storage.makeStorage();
         this.storage = Storage.makeStorage(true, this.componentName);
@@ -11203,10 +11203,10 @@ class View extends component/* Component */.wA {
         return this.__isFullSize;
     }
     getVersion() {
-        return "3.11.4";
+        return "3.11.6";
     }
     static getVersion() {
-        return "3.11.4";
+        return "3.11.6";
     }
     initOptions(options) {
         this.options = (0,helpers.ConfigProto)(options || {}, (0,helpers.ConfigProto)(this.options || {}, View.defaultOptions));
