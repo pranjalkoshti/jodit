@@ -1,12 +1,12 @@
 {
-	"name": "jodit",
-	"version": "3.11.3",
+	"name": "jodit-prk",
+	"version": "3.11.4",
 	"description": "Jodit is awesome and usefully wysiwyg editor with filebrowser",
 	"main": "build/jodit.min.js",
 	"types": "./types/index.d.ts",
 	"scripts": {
 		"coverage": "npx type-coverage ./src --detail --ignore-files 'build/**' --ignore-files 'test/**' --ignore-files 'examples/**'",
-		"newversion": "npm run lint && npm run clean && npm test && npm version patch --no-git-tag-version && npm run build && npm run newversiongit && npm publish ./",
+		"newversion": "npm run clean && npm version patch --no-git-tag-version && npm run build && npm run newversiongit && npm publish ./",
 		"newversiongit": "git add --all  && git commit -m \"New version $npm_package_version. Read more https://github.com/xdan/jodit/blob/master/CHANGELOG.MD \" && git tag $npm_package_version && git push --tags origin HEAD:master",
 		"start": "node server.js --port=2000",
 		"clean": "rm -rf build/*",

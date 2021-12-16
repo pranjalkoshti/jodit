@@ -8,8 +8,7 @@ import type {
 	HTMLTagNames,
 	IDictionary,
 	IJodit,
-	Nullable,
-	IPlugin
+	Nullable
 } from '../../types';
 import { Config } from '../../config';
 import {
@@ -18,9 +17,9 @@ import {
 	INSEPARABLE_TAGS
 } from '../../core/constants';
 import { Dom } from '../../modules';
-import { attr, isString, keys, safeHTML, trim } from '../../core/helpers';
+import { attr, isString, safeHTML, trim } from '../../core/helpers';
 import { Plugin } from '../../core/plugin';
-import { watch, autobind, debounce } from '../../core/decorators';
+import { watch, autobind } from '../../core/decorators';
 import { findNotEmptySibling } from '../keyboard/helpers';
 
 declare module '../../config' {
@@ -133,10 +132,10 @@ export class cleanHtml extends Plugin {
 	protected override afterInit(jodit: IJodit): void {
 		jodit.e
 			.off('.cleanHtml')
-			.on(
-				'change.cleanHtml afterSetMode.cleanHtml afterInit.cleanHtml mousedown.cleanHtml keydown.cleanHtml',
-				this.onChangeCleanHTML
-			)
+			// .on(
+			// 	'change.cleanHtml afterSetMode.cleanHtml afterInit.cleanHtml mousedown.cleanHtml keydown.cleanHtml',
+			// 	this.onChangeCleanHTML
+			// )
 			.on('keyup.cleanHtml', this.onKeyUpCleanUp)
 			.on('beforeCommand.cleanHtml', this.beforeCommand);
 	}
@@ -171,49 +170,49 @@ export class cleanHtml extends Plugin {
 	/**
 	 * Clean HTML code on every change
 	 */
-	@debounce<IPlugin<IJodit>>(ctx => ctx.jodit.o.cleanHTML.timeout)
-	private onChangeCleanHTML(): void {
-		if (!this.allowEdit()) {
-			return;
-		}
+	// @debounce<IPlugin<IJodit>>(ctx => ctx.jodit.o.cleanHTML.timeout)
+	// private onChangeCleanHTML(): void {
+	// 	if (!this.allowEdit()) {
+	// 		return;
+	// 	}
 
-		const editor = this.j;
+	// 	const editor = this.j;
 
-		this.onSafeHTML(editor.editor);
+	// 	this.onSafeHTML(editor.editor);
 
-		const current = editor.s.current();
+	// 	const current = editor.s.current();
 
-		const replaceOldTags = editor.o.cleanHTML.replaceOldTags;
+	// 	const replaceOldTags = editor.o.cleanHTML.replaceOldTags;
 
-		if (replaceOldTags && current) {
-			const tags = keys(replaceOldTags, false) as HTMLTagNames[];
+	// 	if (replaceOldTags && current) {
+	// 		const tags = keys(replaceOldTags, false) as HTMLTagNames[];
 
-			if (editor.s.isCollapsed()) {
-				const oldParent = Dom.closest(current, tags, editor.editor);
+	// 		if (editor.s.isCollapsed()) {
+	// 			const oldParent = Dom.closest(current, tags, editor.editor);
 
-				if (oldParent) {
-					editor.s.save();
-					this.replaceIfMatched(oldParent);
-					editor.s.restore();
-				}
-			}
-		}
+	// 			if (oldParent) {
+	// 				editor.s.save();
+	// 				this.replaceIfMatched(oldParent);
+	// 				editor.s.restore();
+	// 			}
+	// 		}
+	// 	}
 
-		let node: Node | null = null;
+	// 	let node: Node | null = null;
 
-		if (editor.editor.firstChild) {
-			node = editor.editor.firstChild as Element;
-		}
+	// 	if (editor.editor.firstChild) {
+	// 		node = editor.editor.firstChild as Element;
+	// 	}
 
-		const remove: Node[] = [];
-		const work = this.visitNode(node, current, remove);
+	// 	const remove: Node[] = [];
+	// 	const work = this.visitNode(node, current, remove);
 
-		remove.forEach(Dom.safeRemove);
+	// 	remove.forEach(Dom.safeRemove);
 
-		if (remove.length || work) {
-			editor.events && editor.e.fire('synchro');
-		}
-	}
+	// 	if (remove.length || work) {
+	// 		editor.events && editor.e.fire('synchro');
+	// 	}
+	// }
 
 	private allowEdit(): boolean {
 		return !(

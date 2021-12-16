@@ -1,7 +1,7 @@
 /*!
- * jodit - Jodit is awesome and usefully wysiwyg editor with filebrowser
+ * jodit-prk - Jodit is awesome and usefully wysiwyg editor with filebrowser
  * Author: Chupurnov <chupurnov@gmail.com> (https://xdsoft.net/)
- * Version: v3.11.3
+ * Version: v3.11.4
  * Url: https://xdsoft.net/jodit/
  * License(s): MIT
  */
@@ -13295,7 +13295,7 @@ var View = (function (_super) {
         _this.isView = true;
         _this.mods = {};
         _this.components = new Set();
-        _this.version = "3.11.3";
+        _this.version = "3.11.4";
         _this.async = new async_1.Async();
         _this.buffer = storage_1.Storage.makeStorage();
         _this.storage = storage_1.Storage.makeStorage(true, _this.componentName);
@@ -13437,10 +13437,10 @@ var View = (function (_super) {
         configurable: true
     });
     View.prototype.getVersion = function () {
-        return "3.11.3";
+        return "3.11.4";
     };
     View.getVersion = function () {
-        return "3.11.3";
+        return "3.11.4";
     };
     View.prototype.initOptions = function (options) {
         this.options = (0, helpers_1.ConfigProto)(options || {}, (0, helpers_1.ConfigProto)(this.options || {}, View.defaultOptions));
@@ -24493,7 +24493,6 @@ var cleanHtml = (function (_super) {
     cleanHtml.prototype.afterInit = function (jodit) {
         jodit.e
             .off('.cleanHtml')
-            .on('change.cleanHtml afterSetMode.cleanHtml afterInit.cleanHtml mousedown.cleanHtml keydown.cleanHtml', this.onChangeCleanHTML)
             .on('keyup.cleanHtml', this.onKeyUpCleanUp)
             .on('beforeCommand.cleanHtml', this.beforeCommand);
     };
@@ -24508,36 +24507,6 @@ var cleanHtml = (function (_super) {
             return modules_1.Dom.replace(oldParent, tagName, this.j.createInside, true, false);
         }
         return oldParent;
-    };
-    cleanHtml.prototype.onChangeCleanHTML = function () {
-        if (!this.allowEdit()) {
-            return;
-        }
-        var editor = this.j;
-        this.onSafeHTML(editor.editor);
-        var current = editor.s.current();
-        var replaceOldTags = editor.o.cleanHTML.replaceOldTags;
-        if (replaceOldTags && current) {
-            var tags = (0, helpers_1.keys)(replaceOldTags, false);
-            if (editor.s.isCollapsed()) {
-                var oldParent = modules_1.Dom.closest(current, tags, editor.editor);
-                if (oldParent) {
-                    editor.s.save();
-                    this.replaceIfMatched(oldParent);
-                    editor.s.restore();
-                }
-            }
-        }
-        var node = null;
-        if (editor.editor.firstChild) {
-            node = editor.editor.firstChild;
-        }
-        var remove = [];
-        var work = this.visitNode(node, current, remove);
-        remove.forEach(modules_1.Dom.safeRemove);
-        if (remove.length || work) {
-            editor.events && editor.e.fire('synchro');
-        }
     };
     cleanHtml.prototype.allowEdit = function () {
         return !(this.j.isInDestruct ||
@@ -24708,9 +24677,6 @@ var cleanHtml = (function (_super) {
     cleanHtml.prototype.beforeDestruct = function () {
         this.j.e.off('.cleanHtml');
     };
-    (0, tslib_1.__decorate)([
-        (0, decorators_1.debounce)(function (ctx) { return ctx.jodit.o.cleanHTML.timeout; })
-    ], cleanHtml.prototype, "onChangeCleanHTML", null);
     (0, tslib_1.__decorate)([
         decorators_1.autobind
     ], cleanHtml.prototype, "isInlineBlock", null);

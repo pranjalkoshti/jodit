@@ -1,7 +1,7 @@
 /*!
- * jodit - Jodit is awesome and usefully wysiwyg editor with filebrowser
+ * jodit-prk - Jodit is awesome and usefully wysiwyg editor with filebrowser
  * Author: Chupurnov <chupurnov@gmail.com> (https://xdsoft.net/)
- * Version: v3.11.3
+ * Version: v3.11.4
  * Url: https://xdsoft.net/jodit/
  * License(s): MIT
  */
@@ -11105,7 +11105,7 @@ class View extends component/* Component */.wA {
         this.isView = true;
         this.mods = {};
         this.components = new Set();
-        this.version = "3.11.3";
+        this.version = "3.11.4";
         this.async = new Async();
         this.buffer = Storage.makeStorage();
         this.storage = Storage.makeStorage(true, this.componentName);
@@ -11203,10 +11203,10 @@ class View extends component/* Component */.wA {
         return this.__isFullSize;
     }
     getVersion() {
-        return "3.11.3";
+        return "3.11.4";
     }
     static getVersion() {
-        return "3.11.3";
+        return "3.11.4";
     }
     initOptions(options) {
         this.options = (0,helpers.ConfigProto)(options || {}, (0,helpers.ConfigProto)(this.options || {}, View.defaultOptions));
@@ -18403,7 +18403,6 @@ class cleanHtml extends Plugin {
     afterInit(jodit) {
         jodit.e
             .off('.cleanHtml')
-            .on('change.cleanHtml afterSetMode.cleanHtml afterInit.cleanHtml mousedown.cleanHtml keydown.cleanHtml', this.onChangeCleanHTML)
             .on('keyup.cleanHtml', this.onKeyUpCleanUp)
             .on('beforeCommand.cleanHtml', this.beforeCommand);
     }
@@ -18418,36 +18417,6 @@ class cleanHtml extends Plugin {
             return dom/* Dom.replace */.i.replace(oldParent, tagName, this.j.createInside, true, false);
         }
         return oldParent;
-    }
-    onChangeCleanHTML() {
-        if (!this.allowEdit()) {
-            return;
-        }
-        const editor = this.j;
-        this.onSafeHTML(editor.editor);
-        const current = editor.s.current();
-        const replaceOldTags = editor.o.cleanHTML.replaceOldTags;
-        if (replaceOldTags && current) {
-            const tags = (0,helpers.keys)(replaceOldTags, false);
-            if (editor.s.isCollapsed()) {
-                const oldParent = dom/* Dom.closest */.i.closest(current, tags, editor.editor);
-                if (oldParent) {
-                    editor.s.save();
-                    this.replaceIfMatched(oldParent);
-                    editor.s.restore();
-                }
-            }
-        }
-        let node = null;
-        if (editor.editor.firstChild) {
-            node = editor.editor.firstChild;
-        }
-        const remove = [];
-        const work = this.visitNode(node, current, remove);
-        remove.forEach(dom/* Dom.safeRemove */.i.safeRemove);
-        if (remove.length || work) {
-            editor.events && editor.e.fire('synchro');
-        }
     }
     allowEdit() {
         return !(this.j.isInDestruct ||
@@ -18617,9 +18586,6 @@ class cleanHtml extends Plugin {
         this.j.e.off('.cleanHtml');
     }
 }
-(0,tslib_es6/* __decorate */.gn)([
-    (0,decorators.debounce)(ctx => ctx.jodit.o.cleanHTML.timeout)
-], cleanHtml.prototype, "onChangeCleanHTML", null);
 (0,tslib_es6/* __decorate */.gn)([
     decorators.autobind
 ], cleanHtml.prototype, "isInlineBlock", null);
